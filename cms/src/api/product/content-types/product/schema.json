@@ -21,28 +21,13 @@
     "description": {
       "type": "blocks"
     },
-    "price": {
-      "type": "decimal"
-    },
-    "size": {
-      "type": "enumeration",
-      "enum": [
-        "Format 100 ml",
-        "Format 200 ml"
-      ]
-    },
-    "image": {
-      "type": "media",
-      "multiple": true,
-      "allowedTypes": [
-        "images",
-        "files",
-        "videos",
-        "audios"
-      ]
-    },
     "stock": {
       "type": "integer"
+    },
+    "variants": {
+      "type": "component",
+      "component": "produit.variant",
+      "repeatable": true
     }
   }
 }

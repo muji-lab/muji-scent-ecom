@@ -1,43 +1,77 @@
-// src/lib/api.js
-const API_URL = process.env.STRAPI_URL || 'http://localhost:1337';
+// src/lib/api.js - VERSION CORRIGÉE POUR STRUCTURE PLATE
 
-async function fetchStrapi(path) {
-  // On ajoute &populate=image puisqu'on passe déjà un '?' dans path
-  const res = await fetch(`${API_URL}${path}&populate=image`);
-  if (!res.ok) throw new Error(`Strapi error ${res.status}`);
-  return res.json();
+function getStrapiURL(path = '') {
+  return `${process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'}${path}`;
+}
+
+async function fetchStrapi(path, urlParamsStr = '') {
+  const populateParams = 'populate[variants][populate]=image';
+  const finalUrlParams = urlParamsStr
+    ? `${urlParamsStr}&${populateParams}`
+    : `?${populateParams}`;
+  
+  const requestUrl = getStrapiURL(`/api${path}${finalUrlParams}`);
+
+  try {
+    const response = await fetch(requestUrl);
+    if (!response.ok) {
+      console.error('Erreur Strapi:', response.status, await response.text());
+      throw new Error(`Erreur lors de l'appel à l'API Strapi`);
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Impossible de contacter Strapi:', error);
+    return { data: [] };
+  }
+}
+
+function formatProduct(item) {
+  // CORRECTION : L'objet 'item' est maintenant directement le produit, il n'y a plus de clé "attributes".
+  
+  if (!item?.variants || item.variants.length === 0) {
+    return null;
+  }
+
+  // On destructure directement depuis 'item'.
+  const { id, slug, title, description, stock, variants } = item;
+
+  const allImageUrls = variants.flatMap(v => 
+    (v.image || []).map(img => getStrapiURL(img.url))
+  );
+  const uniqueImageUrls = [...new Set(allImageUrls)];
+  
+  return {
+    id:          id,
+    slug:        slug,
+    title:       title,
+    description: description,
+    stock:       stock,
+    sizes:       variants.map(v => ({ label: v.label, price: v.price })),
+    images:      uniqueImageUrls,
+    price:       variants[0].price,
+  };
 }
 
 export async function fetchAllProducts() {
-  const json = await fetchStrapi('/api/products?pagination[pageSize]=100');
-  return (json.data || []).map(item => ({
-    id:          item.id,
-    slug:        item.slug,
-    title:       item.title,
-    price:       item.price,
-    // on garde l'UI telle quelle en passant un tableau de tailles
-    sizes:       [{ label: item.size, price: item.price }],
-    // ici on préfixe chaque URL par API_URL pour obtenir un chemin absolu
-    images:      item.image.map(img => `${API_URL}${img.url}`),
-    description: item.description,
-    stock:       item.stock,
-  }));
+  const json = await fetchStrapi('/products', '?pagination[pageSize]=100');
+  
+  if (!Array.isArray(json.data)) {
+    return [];
+  }
+
+  // CORRECTION : On passe chaque 'item' directement à formatProduct.
+  return json.data.map(formatProduct).filter(Boolean);
 }
 
-export async function fetchProductBySlug(slugParam) {
+export async function fetchProductBySlug(slug) {
   const json = await fetchStrapi(
-    `/api/products?filters[slug][$eq]=${encodeURIComponent(slugParam)}`
+    '/products',
+    `?filters[slug][$eq]=${encodeURIComponent(slug)}`
   );
+
   const item = json.data?.[0];
   if (!item) return null;
-  return {
-    id:          item.id,
-    slug:        item.slug,
-    title:       item.title,
-    price:       item.price,
-    sizes:       [{ label: item.size, price: item.price }],
-    images:      item.image.map(img => `${API_URL}${img.url}`),
-    description: item.description,
-    stock:       item.stock,
-  };
+  
+  // CORRECTION : On passe l'item' directement à formatProduct.
+  return formatProduct(item);
 }

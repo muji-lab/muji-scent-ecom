@@ -82,10 +82,10 @@ export default function CartPanel() {
 
                       {/* Quantité + prix */}
                       <div className="flex items-center gap-3 text-sm">
-                        <button
+                      <button
                           onClick={() => dec(item.id, item.size)}
                           aria-label="Diminuer"
-                          className="w-7 h-7 border rounded flex items-center justify-center"
+                          className="w-7 h-7 flex items-center justify-center rounded-full bg-black text-white hover:bg-neutral-800 transition-colors"
                         >
                           <Minus className="w-4 h-4" />
                         </button>
@@ -93,7 +93,7 @@ export default function CartPanel() {
                         <button
                           onClick={() => inc(item.id, item.size)}
                           aria-label="Augmenter"
-                          className="w-7 h-7 border rounded flex items-center justify-center"
+                          className="w-7 h-7 flex items-center justify-center rounded-full bg-black text-white hover:bg-neutral-800 transition-colors"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
