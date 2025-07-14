@@ -388,8 +388,10 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     customerEmail: Schema.Attribute.Email;
-    customerName: Schema.Attribute.String;
+    customOrderId: Schema.Attribute.String;
+    firstName: Schema.Attribute.String;
     items: Schema.Attribute.JSON;
+    lastName: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::order.order'> &
       Schema.Attribute.Private;

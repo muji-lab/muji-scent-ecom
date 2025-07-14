@@ -11,9 +11,6 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "customerName": {
-      "type": "string"
-    },
     "customerEmail": {
       "type": "email"
     },
@@ -53,6 +50,15 @@
         "delivered",
         "cancelled"
       ]
+    },
+    "firstName": {
+      "type": "string"
+    },
+    "lastName": {
+      "type": "string"
+    },
+    "customOrderId": {
+      "type": "string"
     }
   }
 }
