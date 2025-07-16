@@ -13,6 +13,7 @@ export interface ProduitVariant extends Struct.ComponentSchema {
     >;
     label: Schema.Attribute.String;
     price: Schema.Attribute.Decimal;
+    stock: Schema.Attribute.Integer;
   };
 }
 

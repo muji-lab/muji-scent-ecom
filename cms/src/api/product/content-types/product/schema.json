@@ -18,11 +18,12 @@
       "type": "uid",
       "targetField": "title"
     },
+    "customProductId": {
+      "type": "string",
+      "unique": true
+    },
     "description": {
       "type": "blocks"
-    },
-    "stock": {
-      "type": "integer"
     },
     "variants": {
       "type": "component",

@@ -21,6 +21,9 @@
         "videos",
         "audios"
       ]
+    },
+    "stock": {
+      "type": "integer"
     }
   },
   "config": {}
