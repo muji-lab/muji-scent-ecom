@@ -1,11 +1,17 @@
-export default () => ({});
-// cms/config/plugins.js
-
-module.exports = ({ env }) => ({
+export default ({ env }) => ({
   'users-permissions': {
     config: {
       jwt: {
-        secret: env('JWT_SECRET'),
+        expiresIn: '7d',
+      },
+      register: {
+        allowedFields: ['firstName', 'lastName', 'phone', 'address', 'city', 'postalCode', 'country'],
+      },
+      // Ajouter les champs autorisés pour les mises à jour
+      providers: {
+        local: {
+          allowedFields: ['firstName', 'lastName', 'phone', 'address', 'city', 'postalCode', 'country'],
+        },
       },
     },
   },

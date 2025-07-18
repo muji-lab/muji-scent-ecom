@@ -2,13 +2,23 @@
 'use client';
 
 import Link from "next/link";
-import { Menu, Search, User, ShoppingBag, Heart } from "lucide-react";
+import { Menu, Search, User, ShoppingBag, Heart, LogOut } from "lucide-react";
 import useCartStore from "../store/useCartStore";
+import { useAuth } from "../contexts/AuthContext";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Modal from "./Modal";
 
 export default function Navbar() {
 const items = useCartStore((state) => state.items);
 const openCartPanel = useCartStore((state) => state.openCartPanel);
   const totalQuantity = items.reduce((acc, item) => acc + item.quantity, 0);
+  
+  
+  const { user, isAuthenticated, signOut } = useAuth();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showLogoutTransition, setShowLogoutTransition] = useState(false);
+  const router = useRouter();
 
   return (
     <nav className="relative w-full px-4 md:px-10 py-6 border-b border-gray-200 bg-white text-black flex items-center justify-between">
@@ -40,8 +50,93 @@ const openCartPanel = useCartStore((state) => state.openCartPanel);
         <Link href="/contact" className="hidden md:inline hover:underline">
           Contactez-nous
         </Link>
-        <Heart className="w-5 h-5" />
-        <User className="w-5 h-5" />
+        
+        {/* Menu utilisateur */}
+        <div className="relative">
+          {isAuthenticated ? (
+            <>
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center gap-1 p-1 rounded-full hover:bg-neutral-100 transition-colors"
+                aria-label="Menu utilisateur"
+              >
+                <User className="w-5 h-5" />
+              </button>
+              
+              {showUserMenu && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-neutral-200 rounded-lg shadow-lg py-2 z-50">
+                  <div className="px-4 py-2 border-b border-neutral-200">
+                    <p className="text-sm font-medium">{user?.username}</p>
+                    <p className="text-xs text-neutral-500">{user?.email}</p>
+                  </div>
+                  <Link
+                    href="/account"
+                    className="block px-4 py-2 text-sm hover:bg-neutral-100 transition-colors"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    Mon compte
+                  </Link>
+                  <Link
+                    href="/account/orders"
+                    className="block px-4 py-2 text-sm hover:bg-neutral-100 transition-colors"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    Mes commandes
+                  </Link>
+                  <hr className="my-2" />
+                  <button
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      setShowLogoutTransition(true);
+                      
+                      // Déconnexion après 1.5 secondes
+                      setTimeout(() => {
+                        signOut();
+                        router.push('/');
+                      }, 1500);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 transition-colors flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Se déconnecter
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center gap-1 p-1 rounded-full hover:bg-neutral-100 transition-colors"
+                aria-label="Menu utilisateur"
+              >
+                <User className="w-5 h-5" />
+              </button>
+              
+              {showUserMenu && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-neutral-200 rounded-lg shadow-lg py-2 z-50">
+                  <div className="px-4 py-3 border-b border-neutral-200">
+                    <p className="text-sm font-medium text-neutral-900">Bienvenue !</p>
+                  </div>
+                  <Link
+                    href="/auth/login"
+                    className="block px-4 py-2 text-sm hover:bg-neutral-100 transition-colors"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    Connexion
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    className="block px-4 py-2 text-sm hover:bg-neutral-100 transition-colors"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    Créer un compte
+                  </Link>
+                </div>
+              )}
+            </>
+          )}
+        </div>
 
         {/* Panier cliquable */}
 <button onClick={openCartPanel} className="relative z-[999]" aria-label="Voir le panier">
@@ -53,6 +148,31 @@ const openCartPanel = useCartStore((state) => state.openCartPanel);
           )}
         </button>
       </div>
+      
+      {/* Modal de transition de déconnexion */}
+      <Modal
+        isOpen={showLogoutTransition}
+        onClose={() => {}}
+        showCloseButton={false}
+        size="sm"
+      >
+        <div className="text-center">
+          <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <LogOut className="w-8 h-8 text-neutral-600" />
+          </div>
+          
+          <h3 className="text-lg font-semibold text-neutral-900 mb-2">
+            Au revoir !
+          </h3>
+          <p className="text-neutral-600 text-sm mb-4">
+            Vous êtes en cours de déconnexion...
+          </p>
+          
+          <div className="flex items-center justify-center">
+            <div className="w-5 h-5 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin" />
+          </div>
+        </div>
+      </Modal>
     </nav>
   );
 }

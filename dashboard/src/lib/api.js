@@ -195,3 +195,43 @@ const blocksToTipTap = (blocks = []) => ({
     })),
   };
 }
+
+// ------------------------------------------------------------------
+// Gestion des utilisateurs
+// ------------------------------------------------------------------
+
+export async function fetchUsers() {
+  const path = '/users?sort=createdAt:desc';
+  const response = await fetchStrapi(path);
+  return response || [];
+}
+
+export async function fetchUserById(id) {
+  if (!id) return null;
+  const path = `/users/${id}`;
+  const response = await fetchStrapi(path);
+  return response || null;
+}
+
+export async function updateUser(id, userData) {
+  if (!API_TOKEN) {
+    throw new Error("Token d'API Strapi non configuré.");
+  }
+  
+  const response = await fetch(`${STRAPI_URL}/api/users/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${API_TOKEN}`,
+    },
+    body: JSON.stringify(userData),
+  });
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Erreur mise à jour utilisateur:', errorText);
+    throw new Error('Erreur lors de la mise à jour de l\'utilisateur');
+  }
+  
+  return response.json();
+}

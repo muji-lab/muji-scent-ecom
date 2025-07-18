@@ -89,3 +89,92 @@ export async function POST(request) {
     return NextResponse.json({ error: "Une erreur interne est survenue." }, { status: 500 });
   }
 }
+
+// Nouvelle méthode GET pour récupérer les commandes utilisateur
+export async function GET(request) {
+  try {
+    const authHeader = request.headers.get('Authorization');
+    
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: 'Token d\'authentification requis' },
+        { status: 401 }
+      );
+    }
+
+    console.log('🔄 API orders - Récupération des commandes utilisateur');
+
+    // D'abord récupérer l'utilisateur pour obtenir son email
+    const userResponse = await fetch(`${STRAPI_URL}/api/users/me`, {
+      headers: {
+        'Authorization': authHeader,
+      },
+    });
+
+    if (!userResponse.ok) {
+      console.error('❌ API orders - Erreur récupération utilisateur:', userResponse.status);
+      return NextResponse.json(
+        { error: 'Erreur lors de la récupération de l\'utilisateur' },
+        { status: userResponse.status }
+      );
+    }
+
+    const userData = await userResponse.json();
+    const userEmail = userData.email;
+
+    console.log('👤 API orders - Email utilisateur:', userEmail);
+
+    // Récupérer les commandes de cet utilisateur
+    const ordersResponse = await fetch(
+      `${STRAPI_URL}/api/orders?filters[customerEmail][$eq]=${encodeURIComponent(userEmail)}&populate=*&sort=createdAt:desc`,
+      {
+        headers: {
+          'Authorization': `Bearer ${STRAPI_API_TOKEN}`,
+        },
+      }
+    );
+
+    console.log('📝 API orders - Statut Strapi:', ordersResponse.status);
+
+    if (!ordersResponse.ok) {
+      console.error('❌ API orders - Erreur Strapi:', ordersResponse.status);
+      return NextResponse.json(
+        { error: 'Erreur lors de la récupération des commandes' },
+        { status: ordersResponse.status }
+      );
+    }
+
+    const ordersData = await ordersResponse.json();
+    const orders = ordersData.data || [];
+
+    console.log('✅ API orders - Commandes récupérées:', orders.length);
+
+    // Formater les données pour le frontend
+    const formattedOrders = orders.map(order => ({
+      id: order.id,
+      documentId: order.documentId,
+      customOrderId: order.customOrderId,
+      status: order.orderStatus || 'pending',
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+      totalAmount: order.totalAmount || 0,
+      customerEmail: order.customerEmail,
+      customerName: `${order.firstName} ${order.lastName}`,
+      shippingAddress: order.shippingAddress,
+      items: order.items || [],
+      paymentStatus: order.paymentStatus || 'pending',
+      paymentMethod: order.paymentMethod,
+      trackingNumber: order.trackingNumber,
+      notes: order.notes,
+    }));
+
+    return NextResponse.json(formattedOrders);
+    
+  } catch (error) {
+    console.error('❌ API orders - Erreur serveur:', error);
+    return NextResponse.json(
+      { error: 'Erreur serveur interne' },
+      { status: 500 }
+    );
+  }
+}

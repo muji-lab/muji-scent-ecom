@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Check } from 'lucide-react';
 
-export default function CheckoutStepper({ steps, onFinalStep }) {
+export default function CheckoutStepper({ steps, onFinalStep, finalButtonText = 'Valider ma commande' }) {
   const [currentStep, setCurrentStep] = useState(0);
 
   const next = () => {
@@ -78,7 +78,7 @@ export default function CheckoutStepper({ steps, onFinalStep }) {
           disabled={isNextDisabled}
           className="px-6 py-3 bg-black text-white rounded-full text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {isFinalStep ? 'Valider ma commande' : 'Suivant'}
+          {isFinalStep ? finalButtonText : 'Suivant'}
         </button>
       </div>
     </div>
