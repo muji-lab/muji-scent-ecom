@@ -146,11 +146,12 @@ export default function AccountPage() {
     setShowLogoutModal(false);
     setShowLogoutTransition(true);
     
-    // Déconnexion après 1.5 secondes
+    // Déconnexion après 2 secondes
     setTimeout(() => {
+      setShowLogoutTransition(false);
       signOut();
       router.push('/');
-    }, 1500);
+    }, 2000);
   };
 
   if (isLoading) {
@@ -417,7 +418,7 @@ export default function AccountPage() {
       {/* Modal de transition de déconnexion */}
       <Modal
         isOpen={showLogoutTransition}
-        onClose={() => {}}
+        onClose={() => {}} // Pas de fermeture manuelle pour cette modal
         showCloseButton={false}
         size="sm"
       >
@@ -448,6 +449,7 @@ export default function AccountPage() {
           </div>
         </div>
       </Modal>
+
     </div>
   );
 }

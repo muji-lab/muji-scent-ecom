@@ -7,7 +7,8 @@ import useCartStore from "../store/useCartStore";
 import { useAuth } from "../contexts/AuthContext";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Modal from "./Modal";
+import LogoutModal from "./LogoutModal";
+import ContactModal from "./ContactModal";
 
 export default function Navbar() {
 const items = useCartStore((state) => state.items);
@@ -18,6 +19,7 @@ const openCartPanel = useCartStore((state) => state.openCartPanel);
   const { user, isAuthenticated, signOut } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLogoutTransition, setShowLogoutTransition] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
   const router = useRouter();
 
   return (
@@ -47,9 +49,12 @@ const openCartPanel = useCartStore((state) => state.openCartPanel);
 
       {/* Droite */}
       <div className="flex items-center gap-4 text-sm">
-        <Link href="/contact" className="hidden md:inline hover:underline">
+        <button 
+          onClick={() => setShowContactModal(true)}
+          className="hidden md:inline hover:underline"
+        >
           Contactez-nous
-        </Link>
+        </button>
         
         {/* Menu utilisateur */}
         <div className="relative">
@@ -88,12 +93,6 @@ const openCartPanel = useCartStore((state) => state.openCartPanel);
                     onClick={() => {
                       setShowUserMenu(false);
                       setShowLogoutTransition(true);
-                      
-                      // Déconnexion après 1.5 secondes
-                      setTimeout(() => {
-                        signOut();
-                        router.push('/');
-                      }, 1500);
                     }}
                     className="w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 transition-colors flex items-center gap-2"
                   >
@@ -149,30 +148,25 @@ const openCartPanel = useCartStore((state) => state.openCartPanel);
         </button>
       </div>
       
-      {/* Modal de transition de déconnexion */}
-      <Modal
+      {/* Modal de déconnexion globale */}
+      <LogoutModal
         isOpen={showLogoutTransition}
-        onClose={() => {}}
-        showCloseButton={false}
-        size="sm"
-      >
-        <div className="text-center">
-          <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <LogOut className="w-8 h-8 text-neutral-600" />
-          </div>
-          
-          <h3 className="text-lg font-semibold text-neutral-900 mb-2">
-            Au revoir !
-          </h3>
-          <p className="text-neutral-600 text-sm mb-4">
-            Vous êtes en cours de déconnexion...
-          </p>
-          
-          <div className="flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin" />
-          </div>
-        </div>
-      </Modal>
+        onLogout={() => {
+          signOut();
+          // Attendre que la modal se ferme avant de naviguer
+          setTimeout(() => {
+            setShowLogoutTransition(false);
+            window.location.href = '/';
+          }, 1800);
+        }}
+      />
+      
+      {/* Modal de contact */}
+      <ContactModal 
+        isOpen={showContactModal} 
+        onClose={() => setShowContactModal(false)} 
+      />
+      
     </nav>
   );
 }

@@ -73,6 +73,22 @@ npm run email      # Email preview server
 - **Simplicity**: Avoid unnecessary features or dead code
 - **Dependencies**: Only use existing libraries unless absolutely necessary
 
+### UX Principles for Non-Technical Users
+- **User-Friendly Interface**: Dashboard must be intuitive for non-technical business owners
+- **Clear Explanations**: Always provide context and help text for technical concepts
+- **Explicit Actions**: Use radio buttons and clear labels instead of confusing dropdowns
+- **Visual Consistency**: All modals and interfaces should follow the same design pattern
+- **Real-World Language**: Use terms business owners understand (avoid developer jargon)
+- **Error Prevention**: Guide users through processes with clear steps and validation
+- **Examples**: Provide concrete examples in placeholder text and help sections
+
+### Development Safety Principles
+- **NEVER BREAK EXISTING FUNCTIONALITY**: When implementing new features, ensure existing code continues to work
+- **Test Before Committing**: Always verify that current features still function after changes
+- **Incremental Changes**: Make small, focused changes rather than large refactors
+- **Consistent Patterns**: Follow existing UI/UX patterns instead of creating new ones
+- **Backward Compatibility**: Ensure new features don't break existing data or workflows
+
 ## Key Patterns and Conventions
 
 ### API Integration

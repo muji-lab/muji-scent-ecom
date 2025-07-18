@@ -29,6 +29,15 @@
       "type": "component",
       "component": "produit.variant",
       "repeatable": true
+    },
+    "category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::category.category",
+      "inversedBy": "products"
+    },
+    "tags": {
+      "type": "json"
     }
   }
 }

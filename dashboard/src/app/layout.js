@@ -7,7 +7,7 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import Link from 'next/link';
 // On importe l'icône pour le tableau de bord
-import { Package, ShoppingCart, Users, Menu, X, LayoutDashboard, Settings } from 'lucide-react';
+import { Package, ShoppingCart, Users, Menu, X, LayoutDashboard, Settings, FolderOpen } from 'lucide-react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -36,6 +36,7 @@ export default function RootLayout({ children }) {
               <NavLink href="/" icon={LayoutDashboard}>Accueil</NavLink>
               <NavLink href="/orders" icon={ShoppingCart}>Commandes</NavLink>
               <NavLink href="/products" icon={Package}>Produits</NavLink>
+              <NavLink href="/categories" icon={FolderOpen}>Catégories</NavLink>
               <NavLink href="/clients" icon={Users}>Clients</NavLink>
               <NavLink href="/settings" icon={Settings}>Paramètres</NavLink>
 
@@ -59,6 +60,7 @@ export default function RootLayout({ children }) {
                 <NavLink href="/" icon={LayoutDashboard} onClick={() => setIsMobileMenuOpen(false)}>Accueil</NavLink>
                 <NavLink href="/orders" icon={ShoppingCart} onClick={() => setIsMobileMenuOpen(false)}>Commandes</NavLink>
                 <NavLink href="/products" icon={Package} onClick={() => setIsMobileMenuOpen(false)}>Produits</NavLink>
+                <NavLink href="/categories" icon={FolderOpen} onClick={() => setIsMobileMenuOpen(false)}>Catégories</NavLink>
                 <NavLink href="/clients" icon={Users} onClick={() => setIsMobileMenuOpen(false)}>Clients</NavLink>
               </nav>
             </div>

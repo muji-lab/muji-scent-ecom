@@ -63,7 +63,7 @@ export async function fetchOrdersToShip(limit = 5) {
 
 // dashboard/src/lib/api.js
 export async function fetchAllProducts() {
-  const path = "/products?populate[variants][populate][image]=true";
+  const path = "/products?populate[variants][populate][image]=true&populate[category]=true";
   const res  = await fetchStrapi(path);
 
   const products = (res?.data || []).map((p) => {
@@ -113,9 +113,7 @@ export async function fetchAllProducts() {
 
 
 
-const API_TOKEN   = process.env.STRAPI_API_TOKEN;
-
-const headers = { Authorization: `Bearer ${API_TOKEN}` };
+const headers = { Authorization: `Bearer ${STRAPI_API_TOKEN}` };
 
 // ---------- CRUD PRODUIT ----------
 export async function createProduct(payload /* JS object */) {
@@ -156,7 +154,7 @@ export async function deleteProduct(id) {
 export async function fetchProductById(documentId) {
   if (!documentId) return null;
   const res = await fetchStrapi(
-    `/products/${documentId}?populate[variants][populate][image]=true`
+    `/products/${documentId}?populate[variants][populate][image]=true&populate[category]=true`
   );
   const p = res?.data;
   if (!p) return null;
@@ -222,7 +220,7 @@ export async function updateUser(id, userData) {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${API_TOKEN}`,
+      'Authorization': `Bearer ${STRAPI_API_TOKEN}`,
     },
     body: JSON.stringify(userData),
   });
@@ -234,4 +232,78 @@ export async function updateUser(id, userData) {
   }
   
   return response.json();
+}
+
+// =================== CATÉGORIES ===================
+
+export async function fetchCategories() {
+  const response = await fetch('/api/categories');
+  
+  if (!response.ok) {
+    throw new Error('Erreur lors du chargement des catégories');
+  }
+  
+  const data = await response.json();
+  return data.data || [];
+}
+
+export async function fetchCategoryById(documentId) {
+  const response = await fetch(`/api/categories/${documentId}`);
+  
+  if (!response.ok) {
+    throw new Error('Erreur lors du chargement de la catégorie');
+  }
+  
+  const data = await response.json();
+  return data.data || null;
+}
+
+export async function createCategory(categoryData) {
+  const response = await fetch('/api/categories', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(categoryData),
+  });
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Erreur createCategory:', errorText);
+    throw new Error('Erreur lors de la création de la catégorie');
+  }
+  
+  const data = await response.json();
+  return data.data;
+}
+
+export async function updateCategory(documentId, categoryData) {
+  const response = await fetch(`/api/categories/${documentId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(categoryData),
+  });
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Erreur updateCategory:', errorText);
+    throw new Error('Erreur lors de la mise à jour de la catégorie');
+  }
+  
+  const data = await response.json();
+  return data.data;
+}
+
+export async function deleteCategory(documentId) {
+  const response = await fetch(`/api/categories?id=${documentId}`, {
+    method: 'DELETE',
+  });
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Erreur deleteCategory:', errorText);
+    throw new Error('Erreur lors de la suppression de la catégorie');
+  }
 }

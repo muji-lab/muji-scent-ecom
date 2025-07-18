@@ -3,7 +3,7 @@
 /* -------------------------------------------------------------------------- */
 /* IMPORTS                                                                    */
 /* -------------------------------------------------------------------------- */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import slugify from 'slugify';
 import Image from 'next/image';
@@ -12,11 +12,13 @@ import {
   X as XIcon,
   Trash2,
   GripVertical,
+  Info,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import ImageCropper from './ImageCropper';
 import { Hourglass } from 'ldrs/react';
 import 'ldrs/react/Hourglass.css';
+import { fetchCategories } from '@/lib/api';
 
 
 import { DndContext, closestCenter } from '@dnd-kit/core';
@@ -70,6 +72,8 @@ export default function ProductForm({ initial }) {
   const [title, setTitle]   = useState(initial?.title ?? '');
   const [slug, setSlug]     = useState(initial?.slug  ?? '');
   const [desc, setDesc]     = useState(initial?.description ?? '');
+  const [category, setCategory] = useState(initial?.category?.id ?? '');
+  const [categories, setCategories] = useState([]);
   const [variants, setVars] = useState(
     initial?.variants?.map((v) => ({ ...v, images: v.images || [] })) ?? []
   );
@@ -79,6 +83,18 @@ export default function ProductForm({ initial }) {
   const [cropping, setCropping] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
+  /* ----------------------- charger les catégories ---------------------- */
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await fetchCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error('Erreur lors du chargement des catégories:', error);
+      }
+    };
+    loadCategories();
+  }, []);
 
   /* ----------------------------- SUBMIT --------------------------------- */
   const handleSubmit = async (e) => {
@@ -100,6 +116,7 @@ export default function ProductForm({ initial }) {
       slug: slug || slugify(title, { lower: true }),
       customProductId: initial?.customProductId || generateCustomProductId(),
       description: desc,
+      category: category || null,
       variants: variants.map((v) => ({
         label: v.label,
         price: v.price,
@@ -299,6 +316,34 @@ const [isProcessingImage, setIsProcessingImage] = useState(false);
                 Description complète
               </label>
               <RichTextEditor content={desc} onChange={setDesc} />
+            </div>
+
+            {/* CATÉGORIE */}
+            <div>
+              <label className="block font-medium mb-1 text-sm">
+                Catégorie
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full border border-neutral-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              >
+                <option value="">Aucune catégorie</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.parentCategory ? `${cat.parentCategory.name} > ${cat.name}` : cat.name}
+                  </option>
+                ))}
+              </select>
+              <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-2 mb-1">
+                  <Info className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-800">Organisation du catalogue</span>
+                </div>
+                <p className="text-sm text-blue-700">
+                  Choisissez une catégorie pour organiser vos produits et faciliter la navigation des clients.
+                </p>
+              </div>
             </div>
           </div>
         </div>
